@@ -1,0 +1,631 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quizify | {{ user.username }}'s Profile</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            /* Core colors */
+            --bg-dark: #0B0B12;
+            --bg-darker: #070709;
+            --bg-light: #FFFFFF;
+            --primary: #5D5FEF;
+            --primary-dark: #4A4AD1;
+            --primary-light: #7B7BFF;
+            --accent: #FF3366;
+            --success: #00C895;
+            --text-light: #FFFFFF;
+            --text-muted: rgba(255, 255, 255, 0.6);
+            --text-dark: #0B0B12;
+
+            /* Gradients */
+            --gradient-primary: linear-gradient(135deg, #5D5FEF 0%, #8E8EFF 100%);
+            --gradient-accent: linear-gradient(135deg, #FF3366 0%, #FF6B99 100%);
+            --gradient-dark: linear-gradient(135deg, #0B0B12 0%, #1F1F3A 100%);
+            --gradient-glow: linear-gradient(135deg, rgba(93, 95, 239, 0.4) 0%, rgba(255, 51, 102, 0.4) 100%);
+
+            /* Typography */
+            --font-display: 'Plus Jakarta Sans', sans-serif;
+            --font-body: 'Inter', sans-serif;
+
+            /* Effects */
+            --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 10px 15px rgba(0, 0, 0, 0.07), 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04);
+            --shadow-xl: 0 25px 50px rgba(0, 0, 0, 0.25);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 16px;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            padding-bottom: 4rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Background effects */
+        .bg-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .bg-gradient-1 {
+            background: radial-gradient(circle at 20% 20%, rgba(93, 95, 239, 0.2) 0%, rgba(11, 11, 18, 0) 70%);
+        }
+
+        .bg-gradient-2 {
+            background: radial-gradient(circle at 80% 80%, rgba(255, 51, 102, 0.15) 0%, rgba(11, 11, 18, 0) 70%);
+        }
+
+        .bg-noise {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            opacity: 0.4;
+            z-index: 0;
+        }
+
+        /* Page Header */
+        .profile-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 3rem;
+            color: white;
+            box-shadow: 0 10px 25px rgba(93, 95, 239, 0.3);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .profile-avatar.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .profile-avatar::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 50%);
+            border-radius: 50%;
+        }
+
+        .profile-title {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
+        }
+
+        .profile-title.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .profile-title .username {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Stats Cards */
+        .stats-container {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.4s;
+        }
+
+        .stats-container.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .stat-card {
+            flex: 1;
+            background: rgba(20, 20, 35, 0.5);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(93, 95, 239, 0.05) 0%, rgba(255, 51, 102, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 0;
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+            position: relative;
+        }
+
+        .total-tests-icon {
+            background: rgba(93, 95, 239, 0.1);
+            color: var(--primary-light);
+        }
+
+        .average-score-icon {
+            background: rgba(0, 200, 149, 0.1);
+            color: var(--success);
+        }
+
+        .stat-value {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 3rem;
+            margin-bottom: 0.75rem;
+            position: relative;
+            line-height: 1;
+            z-index: 1;
+        }
+
+        .total-tests-value {
+            color: var(--primary-light);
+        }
+
+        .average-score-value {
+            color: var(--success);
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Quiz Results */
+        .results-section {
+            margin-bottom: 3rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.6s;
+        }
+
+        .results-section.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .results-card {
+            background: rgba(20, 20, 35, 0.5);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .results-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(93, 95, 239, 0.05) 0%, rgba(255, 51, 102, 0.05) 100%);
+            opacity: 1;
+            z-index: -1;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title i {
+            margin-right: 0.75rem;
+            color: var(--primary);
+        }
+
+        /* Table styling */
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+
+        .results-table th {
+            background: rgba(93, 95, 239, 0.1);
+            color: var(--text-light);
+            font-family: var(--font-display);
+            font-weight: 600;
+            padding: 1rem;
+            text-align: left;
+            font-size: 1.1rem;
+            border-bottom: 2px solid rgba(93, 95, 239, 0.3);
+        }
+
+        .results-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+        }
+
+        .results-table tr {
+            transition: all 0.3s ease;
+        }
+
+        .results-table tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .results-table tr:hover td {
+            color: var(--text-light);
+        }
+
+        /* Score styling */
+        .quiz-score {
+            font-weight: 600;
+            text-align: center;
+            font-family: var(--font-display);
+        }
+
+        .score-high {
+            color: var(--success);
+        }
+
+        .score-medium {
+            color: #FFC107;
+        }
+
+        .score-low {
+            color: var(--accent);
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 0;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
+            color: var(--primary-light);
+        }
+
+        /* Back button */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 1.5rem;
+            font-weight: 600;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.8s;
+        }
+
+        .btn.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .btn::after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.2));
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translateY(100%);
+        }
+
+        .btn:hover::after {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-light);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px);
+        }
+
+        .btn-icon {
+            margin-right: 0.5rem;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .btn:hover .btn-icon {
+            transform: translateX(-4px);
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+
+            .profile-title {
+                font-size: 2rem;
+            }
+
+            .stats-container {
+                flex-direction: column;
+            }
+
+            .results-card {
+                padding: 1.5rem;
+            }
+
+            .results-table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .results-table th,
+            .results-table td {
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background elements -->
+    <div class="bg-gradient bg-gradient-1"></div>
+    <div class="bg-gradient bg-gradient-2"></div>
+    <div class="bg-noise"></div>
+
+    <div class="container">
+        <header class="profile-header">
+            <div class="profile-avatar">
+                {{ user.username.0|upper }}
+            </div>
+            <h1 class="profile-title"><span class="username">{{ user.username }}</span>'s Quiz Profile</h1>
+        </header>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon total-tests-icon">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <div class="stat-value total-tests-value" id="total-tests-counter">{{ total_tests }}</div>
+                <div class="stat-label">Total Tests Taken</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon average-score-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-value average-score-value" id="average-score-counter">{{ average_score }}</div>
+                <div class="stat-label">Average Score (%)</div>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <div class="results-card">
+                <h2 class="section-title">
+                    <i class="fas fa-trophy"></i>
+                    Quiz Results
+                </h2>
+
+                {% if results %}
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Quiz</th>
+                            <th style="text-align: center;">Score (%)</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in results %}
+                        <tr class="result-row">
+                            <td>{{ result.quiz.name }}</td>
+                            <td
+                                class="quiz-score {% if result.score >= 90 %}score-high{% elif result.score >= 70 %}score-medium{% else %}score-low{% endif %}">
+                                {{ result.score }}
+                            </td>
+                            <td>{{ result.completed_on|date:"M d, Y H:i" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <p>No quizzes taken yet. Start your learning journey today!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <a href="/" class="btn btn-secondary">
+            <i class="fas fa-arrow-left btn-icon"></i>
+            Back to Home
+        </a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+               
+                setTimeout(function () {
+                    document.querySelector('.profile-avatar').classList.add('active');
+                    document.querySelector('.profile-title').classList.add('active');
+                    document.querySelector('.stats-container').classList.add('active');
+                    document.querySelector('.results-section').classList.add('active');
+                    document.querySelector('.btn').classList.add('active');
+                }, 100);
+
+               
+                const rows = document.querySelectorAll('.result-row');
+                if (rows.length > 0) {
+                    rows.forEach((row, index) => {
+                        setTimeout(() => {
+                            row.style.opacity = '0';
+                            row.style.transform = 'translateY(20px)';
+                            row.style.transition = 'all 0.3s ease';
+
+                            setTimeout(() => {
+                                row.style.opacity = '1';
+                                row.style.transform = 'translateY(0)';
+                            }, 50);
+                        }, 800 + (index * 100));
+                    });
+                }
+
+    
+                function animateCounter(elementId, targetValue) {
+                    const element = document.getElementById(elementId);
+                    if (!element) return;
+
+                    targetValue = parseFloat(targetValue) || 0;
+
+                    const duration = 1500; 
+                    const increment = targetValue / (duration / 16); 
+                    let currentValue = 0;
+
+                    const counterInterval = setInterval(() => {
+                        currentValue += increment;
+                        if (currentValue >= targetValue) {
+                            currentValue = targetValue;
+                            clearInterval(counterInterval);
+                        }
+
+                        element.textContent = Math.round(currentValue);
+                    }, 16);
+                }
+
+              
+                setTimeout(() => {
+                    
+                    const totalTests = document.getElementById('total-tests-counter').textContent;
+                    const averageScore = document.getElementById('average-score-counter').textContent;
+
+                    animateCounter('total-tests-counter', totalTests);
+                    animateCounter('average-score-counter', averageScore);
+                }, 800);
+            });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,490 @@
+{% load static %}
+{% load custom_filters %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quizify | Review {{ quiz.name }}</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            /* Core colors */
+            --bg-dark: #0B0B12;
+            --bg-darker: #070709;
+            --bg-light: #FFFFFF;
+            --primary: #5D5FEF;
+            --primary-dark: #4A4AD1;
+            --primary-light: #7B7BFF;
+            --accent: #FF3366;
+            --success: #00C895;
+            --text-light: #FFFFFF;
+            --text-muted: rgba(255, 255, 255, 0.6);
+            --text-dark: #0B0B12;
+
+            /* Gradients */
+            --gradient-primary: linear-gradient(135deg, #5D5FEF 0%, #8E8EFF 100%);
+            --gradient-accent: linear-gradient(135deg, #FF3366 0%, #FF6B99 100%);
+            --gradient-success: linear-gradient(135deg, #00C895 0%, #00E8B0 100%);
+            --gradient-dark: linear-gradient(135deg, #0B0B12 0%, #1F1F3A 100%);
+            --gradient-glow: linear-gradient(135deg, rgba(93, 95, 239, 0.4) 0%, rgba(255, 51, 102, 0.4) 100%);
+
+            /* Typography */
+            --font-display: 'Plus Jakarta Sans', sans-serif;
+            --font-body: 'Inter', sans-serif;
+
+            /* Effects */
+            --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 10px 15px rgba(0, 0, 0, 0.07), 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04);
+            --shadow-xl: 0 25px 50px rgba(0, 0, 0, 0.25);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 16px;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            padding-bottom: 4rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Background effects */
+        .bg-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .bg-gradient-1 {
+            background: radial-gradient(circle at 30% 30%, rgba(93, 95, 239, 0.2) 0%, rgba(11, 11, 18, 0) 70%);
+        }
+
+        .bg-gradient-2 {
+            background: radial-gradient(circle at 70% 70%, rgba(255, 51, 102, 0.15) 0%, rgba(11, 11, 18, 0) 70%);
+        }
+
+        .bg-noise {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            opacity: 0.4;
+            z-index: 0;
+        }
+
+        /* Page Header */
+        .review-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .review-title {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .review-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+
+        .review-subtitle {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+        }
+
+        .quiz-name {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Questions Container */
+        .questions-container {
+            opacity: 0;
+            animation: fadeIn 0.8s ease 0.3s forwards;
+        }
+
+        /* Question Card */
+        .question-card {
+            background: rgba(20, 20, 35, 0.5);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 2rem;
+            transform: translateY(20px);
+            opacity: 0;
+        }
+
+        .question-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(93, 95, 239, 0.05) 0%, rgba(255, 51, 102, 0.05) 100%);
+            opacity: 1;
+            z-index: -1;
+        }
+
+        .question-number {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .question-text {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            padding-right: 45px;
+        }
+
+        /* Choices List */
+        .choices-list {
+            list-style: none;
+        }
+
+        .choice-item {
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.75rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .choice-correct {
+            background: rgba(0, 200, 149, 0.1);
+            border: 1px solid rgba(0, 200, 149, 0.2);
+        }
+
+        .choice-incorrect {
+            background: rgba(255, 51, 102, 0.1);
+            border: 1px solid rgba(255, 51, 102, 0.2);
+        }
+
+        .choice-default {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .choice-highlight {
+            background: rgba(93, 95, 239, 0.1);
+            border: 1px solid rgba(93, 95, 239, 0.2);
+        }
+
+        .choice-icon {
+            width: 28px;
+            height: 28px;
+            min-width: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .correct-icon {
+            background: var(--success);
+            color: white;
+        }
+
+        .incorrect-icon {
+            background: var(--accent);
+            color: white;
+        }
+
+        .default-icon {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+        }
+
+        .choice-text {
+            flex-grow: 1;
+            font-size: 1.05rem;
+        }
+
+        .choice-label {
+            font-size: 0.85rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            margin-left: 1rem;
+            font-weight: 500;
+        }
+
+        .label-correct {
+            background: rgba(0, 200, 149, 0.2);
+            color: var(--success);
+        }
+
+        .label-incorrect {
+            background: rgba(255, 51, 102, 0.2);
+            color: var(--accent);
+        }
+
+        .label-your-answer {
+            background: rgba(93, 95, 239, 0.2);
+            color: var(--primary-light);
+        }
+
+        /* Back button */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 1.5rem;
+            font-weight: 600;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border: none;
+            opacity: 0;
+            animation: fadeIn 0.8s ease 0.8s forwards;
+        }
+
+        .btn::after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.2));
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translateY(100%);
+        }
+
+        .btn:hover::after {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-light);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px);
+        }
+
+        .btn-icon {
+            margin-right: 0.5rem;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .btn:hover .btn-icon {
+            transform: translateX(-4px);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+
+            .review-title {
+                font-size: 2rem;
+            }
+
+            .question-card {
+                padding: 1.5rem;
+            }
+
+            .question-text {
+                font-size: 1.2rem;
+            }
+
+            .choice-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .choice-icon {
+                margin-bottom: 0.5rem;
+            }
+
+            .choice-label {
+                margin-left: 0;
+                margin-top: 0.5rem;
+                display: inline-block;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background elements -->
+    <div class="bg-gradient bg-gradient-1"></div>
+    <div class="bg-gradient bg-gradient-2"></div>
+    <div class="bg-noise"></div>
+
+    <div class="container">
+        <header class="review-header">
+            <h1 class="review-title">Review Answers for <span class="quiz-name">{{ quiz.name }}</span></h1>
+            <p class="review-subtitle">See what you got right and where you can improve</p>
+        </header>
+
+        <div class="questions-container">
+            {% for question in questions %}
+            <div class="question-card" id=".question-card#question-{{ forloop.counter }} 
+  animation-delay: {{ forloop.counter|add:'2' }}00ms;">
+                <div class="question-number">{{ forloop.counter }}</div>
+                <h3 class="question-text">{{ question.text }}</h3>
+
+                <ul class="choices-list">
+                    {% for choice in question.choice_set.all %}
+                    {% with answer=answer_dict|get_item:question.id %}
+                    {% if choice.id == answer.selected_choice.id %}
+                    {% if answer.is_correct %}
+                    <li class="choice-item choice-correct">
+                        <div class="choice-icon correct-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="choice-text">{{ choice.text }}</div>
+                        <span class="choice-label label-correct">Correct</span>
+                        <span class="choice-label label-your-answer">Your Answer</span>
+                    </li>
+                    {% else %}
+                    <li class="choice-item choice-incorrect">
+                        <div class="choice-icon incorrect-icon">
+                            <i class="fas fa-times"></i>
+                        </div>
+                        <div class="choice-text">{{ choice.text }}</div>
+                        <span class="choice-label label-incorrect">Incorrect</span>
+                        <span class="choice-label label-your-answer">Your Answer</span>
+                    </li>
+                    {% endif %}
+                    {% elif choice.is_correct %}
+                    <li class="choice-item choice-highlight">
+                        <div class="choice-icon correct-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="choice-text">{{ choice.text }}</div>
+                        <span class="choice-label label-correct">Correct Answer</span>
+                    </li>
+                    {% else %}
+                    <li class="choice-item choice-default">
+                        <div class="choice-icon default-icon">
+                            <i class="fas fa-circle"></i>
+                        </div>
+                        <div class="choice-text">{{ choice.text }}</div>
+                    </li>
+                    {% endif %}
+                    {% endwith %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
+
+        <a href="{% url 'home' %}" class="btn btn-secondary">
+            <i class="fas fa-home btn-icon"></i>
+            Back to Home
+        </a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+           
+            const questionCards = document.querySelectorAll('.question-card');
+
+            questionCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.animation = `fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards`;
+                }, 300 + (index * 150));
+            });
+        });
+    </script>
+</body>
+
+</html>

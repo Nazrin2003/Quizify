@@ -1,0 +1,435 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quizify | Sign Up</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            /* Core colors */
+            --bg-dark: #0B0B12;
+            --bg-darker: #070709;
+            --bg-light: #FFFFFF;
+            --primary: #5D5FEF;
+            --primary-dark: #4A4AD1;
+            --primary-light: #7B7BFF;
+            --accent: #FF3366;
+            --success: #00C895;
+            --text-light: #FFFFFF;
+            --text-muted: rgba(255, 255, 255, 0.6);
+            --text-dark: #0B0B12;
+
+            /* Gradients */
+            --gradient-primary: linear-gradient(135deg, #5D5FEF 0%, #8E8EFF 100%);
+            --gradient-accent: linear-gradient(135deg, #FF3366 0%, #FF6B99 100%);
+            --gradient-dark: linear-gradient(135deg, #0B0B12 0%, #1F1F3A 100%);
+            --gradient-glow: linear-gradient(135deg, rgba(93, 95, 239, 0.4) 0%, rgba(255, 51, 102, 0.4) 100%);
+
+            /* Typography */
+            --font-display: 'Plus Jakarta Sans', sans-serif;
+            --font-body: 'Inter', sans-serif;
+
+            /* Effects */
+            --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 10px 15px rgba(0, 0, 0, 0.07), 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04);
+            --shadow-xl: 0 25px 50px rgba(0, 0, 0, 0.25);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+            padding: 2rem;
+        }
+
+        /* Background effects */
+        .bg-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .bg-gradient-1 {
+            background: radial-gradient(circle at 30% 30%, rgba(93, 95, 239, 0.2) 0%, rgba(11, 11, 18, 0) 70%);
+        }
+
+        .bg-gradient-2 {
+            background: radial-gradient(circle at 70% 70%, rgba(255, 51, 102, 0.15) 0%, rgba(11, 11, 18, 0) 70%);
+        }
+
+        .bg-noise {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            opacity: 0.4;
+            z-index: -1;
+        }
+
+        .hero-dots {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        .hero-dots-1 {
+            top: 10%;
+            left: 5%;
+            transform: rotate(10deg);
+        }
+
+        .hero-dots-2 {
+            bottom: 10%;
+            right: 5%;
+            transform: rotate(-10deg);
+        }
+
+        /* Signup container */
+        .signup-container {
+            background: rgba(20, 20, 35, 0.5);
+            backdrop-filter: blur(15px);
+            border-radius: 24px;
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 520px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .signup-container.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .signup-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(93, 95, 239, 0.05) 0%, rgba(255, 51, 102, 0.05) 100%);
+            opacity: 1;
+            z-index: -1;
+        }
+
+        /* Logo */
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(-6deg);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            margin-right: 0.75rem;
+        }
+
+        .brand-logo:hover .logo-icon {
+            transform: rotate(0deg);
+        }
+
+        .logo-icon svg {
+            width: 28px;
+            height: 28px;
+            fill: white;
+        }
+
+        .brand-name {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 2rem;
+            color: var(--text-light);
+            position: relative;
+        }
+
+        .brand-name::after {
+            content: "";
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            bottom: 8px;
+            right: -8px;
+        }
+
+        /* Form header */
+        .form-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .form-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        /* Form styling */
+        .signup-form p {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .signup-form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .signup-form input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            color: var(--text-light);
+            font-family: var(--font-body);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .signup-form input:focus {
+            outline: none;
+            border-color: rgba(93, 95, 239, 0.5);
+            box-shadow: 0 0 0 3px rgba(93, 95, 239, 0.25);
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        .signup-form input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+
+        /* Error messages */
+        .signup-form ul.errorlist {
+            list-style: none;
+            color: var(--accent);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            padding-left: 0;
+        }
+
+        .signup-form .helptext {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Submit button */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border: none;
+            width: 100%;
+        }
+
+        .btn::after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.2));
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translateY(100%);
+        }
+
+        .btn:hover::after {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: var(--text-light);
+            box-shadow: 0 8px 20px rgba(93, 95, 239, 0.3);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 12px 25px rgba(93, 95, 239, 0.5);
+            transform: translateY(-3px);
+        }
+
+        /* Login link */
+        .login-link {
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .login-link a {
+            color: var(--primary-light);
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .login-link a::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--primary-light);
+            transition: width 0.3s ease;
+        }
+
+        .login-link a:hover {
+            color: var(--text-light);
+        }
+
+        .login-link a:hover::after {
+            width: 100%;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 576px) {
+            .signup-container {
+                padding: 2rem;
+                max-width: 100%;
+            }
+
+            body {
+                padding: 1rem;
+            }
+
+            .form-title {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background elements -->
+    <div class="bg-gradient bg-gradient-1"></div>
+    <div class="bg-gradient bg-gradient-2"></div>
+    <div class="bg-noise"></div>
+    <div class="hero-dots hero-dots-1"></div>
+    <div class="hero-dots hero-dots-2"></div>
+
+    <div class="signup-container">
+        <div class="brand-logo">
+            <div class="logo-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L1 21h22L12 2zm0 4.5l7 12.5H5l7-12.5z" />
+                </svg>
+            </div>
+            <div class="brand-name">Quizify</div>
+        </div>
+
+        <div class="form-header">
+            <h1 class="form-title">Create Your Account</h1>
+            <p class="form-subtitle">Start your learning journey today</p>
+        </div>
+
+        <form method="post" class="signup-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">
+                Register
+                <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
+            </button>
+        </form>
+
+        <div class="login-link">
+            Already have an account? <a href="{% url 'login' %}">Log in</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+           
+            setTimeout(function () {
+                document.querySelector('.signup-container').classList.add('active');
+            }, 200);
+
+           
+            const inputs = document.querySelectorAll('.signup-form input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function () {
+                    this.parentElement.classList.add('form-group-focus');
+                });
+                input.addEventListener('blur', function () {
+                    this.parentElement.classList.remove('form-group-focus');
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
