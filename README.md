@@ -1,4 +1,4 @@
-# Quizify
+﻿# Quizify
 
 ## An Interactive Web-Based Quiz Platform
 
@@ -55,13 +55,29 @@ Quizify is a web-based quiz application built for skill-based assessment and pre
 
 ## Screenshots
 
- `screenshots/home.png`
- `screenshots/home2.png`
- `screenshots/home3.png`
-  `screenshots/quiz.png`
-  `screenshots/result.png`
-  `screenshots/review.png`
-  `screenshots/admin.png`
+### Home Page
+
+![Quizify home page](screenshots/home.png)
+
+### Quiz Topics and Dashboard
+
+![Quizify quiz topics](screenshots/home2.png)
+
+![Quizify dashboard](screenshots/home3.png)
+
+### Attempt a Quiz
+
+![Quizify quiz screen](screenshots/quiz.png)
+
+### Result and Review
+
+![Quizify result screen](screenshots/result.png)
+
+![Quizify answer review](screenshots/review.png)
+
+### Admin Panel
+
+![Quizify admin panel](screenshots/admin.png)
 
 ## Getting Started
 
@@ -74,3 +90,4 @@ python manage.py runserver
 ```
 
 Open `http://127.0.0.1:8000/` in your browser.
+
