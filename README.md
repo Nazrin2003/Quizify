@@ -55,15 +55,13 @@ Quizify is a web-based quiz application built for skill-based assessment and pre
 
 ## Screenshots
 
-Add application screenshots to a `screenshots/` folder and link them here.
-
-| Home page | Quiz screen |
-| --- | --- |
-| _Add `screenshots/home.png`_ | _Add `screenshots/quiz.png`_ |
-
-| Results | Leaderboard |
-| --- | --- |
-| _Add `screenshots/results.png`_ | _Add `screenshots/leaderboard.png`_ |
+ `screenshots/home.png`
+ `screenshots/home2.png`
+ `screenshots/home3.png`
+  `screenshots/quiz.png`
+  `screenshots/result.png`
+  `screenshots/review.png`
+  `screenshots/admin.png`
 
 ## Getting Started
 
